@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { api } from '../lib/api';
 import { Plus, Edit2, Trash2, Hotel as HotelIcon, Loader2, DoorOpen, Users, Calendar } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { use } from 'react';
 
 export const AdminDashboard = () => {
   const { isAdmin, isHotelManager, canManageHotels, loading: authLoading } = useAuth();
@@ -39,6 +40,12 @@ export const AdminDashboard = () => {
     }
   }, [canManageHotels, isAdmin]);
 
+  useEffect(() => {
+    fetchRooms();
+    fetchReservations();
+  }, [hotels]);
+
+
   const fetchHotels = async () => {
     try {
       const data = isAdmin ? await api.hotels.getAll() : await api.hotels.getManagedHotels();
@@ -52,7 +59,7 @@ export const AdminDashboard = () => {
 
   const fetchRooms = async () => {
     try {
-      const data = await api.rooms.getAll();
+      const data = await api.rooms.getAll() ;
       const managedHotelIds = new Set(hotels.map(h => h.id));
       const filteredRooms = isHotelManager
         ? data.filter(room => managedHotelIds.has(room.hotel_id))
